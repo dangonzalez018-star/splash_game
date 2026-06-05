@@ -4,9 +4,9 @@ workflows:
     max_build_duration: 60
     environment:
       java: 17
-      flutter: stable
+      flutter: 3.16.9
     scripts:
-      - name: Patch Project Configurations for Java 17
+      - name: Patch Project Configurations
         script: |
           cat << 'EOF' > patch_project.py
           import os, re
