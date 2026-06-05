@@ -6,6 +6,20 @@ workflows:
       java: 11
       flutter: 3.16.9
     scripts:
+      - name: Patch Android SDK Versions
+        script: |
+          cat << 'EOF' > patch_sdk.py
+          import os, re
+          p = 'src/android/app/build.gradle'
+          if os.path.exists(p):
+              c = open(p).read()
+              c = re.sub(r'compileSdkVersion\s+\d+', 'compileSdkVersion 34', c)
+              c = re.sub(r'compileSdkVersion\s+flutter\.compileSdkVersion', 'compileSdkVersion 34', c)
+              c = re.sub(r'targetSdkVersion\s+\d+', 'targetSdkVersion 34', c)
+              c = re.sub(r'targetSdkVersion\s+flutter\.targetSdkVersion', 'targetSdkVersion 34', c)
+              open(p, 'w').write(c)
+          EOF
+          python3 patch_sdk.py
       - name: Get packages
         script: |
           cd src
