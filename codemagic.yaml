@@ -32,6 +32,13 @@ workflows:
               c = re.sub(r'targetSdkVersion\s+\d+', 'targetSdkVersion 34', c)
               c = re.sub(r'targetSdkVersion\s+flutter\.targetSdkVersion', 'targetSdkVersion 34', c)
               open(p, 'w').write(c)
+          # 4. AndroidManifest.xml (Añadir android:exported="true" para Android 12+)
+          p = 'src/android/app/src/main/AndroidManifest.xml'
+          if os.path.exists(p):
+              c = open(p).read()
+              if 'android:exported' not in c:
+                  c = c.replace('android:name=".MainActivity"', 'android:name=".MainActivity"\n            android:exported="true"')
+                  open(p, 'w').write(c)
           EOF
           python3 patch_project.py
       - name: Get packages
