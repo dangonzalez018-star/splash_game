@@ -3,9 +3,28 @@ workflows:
     name: Splash APK Build
     max_build_duration: 60
     environment:
-      java: 11
+      java: 17
       flutter: stable
     scripts:
+      - name: Patch Gradle and Kotlin for Java 17
+        script: |
+          cat << 'EOF' > patch_gradle.py
+          import os, re
+          # 1. gradle-wrapper
+          p = 'src/android/gradle/wrapper/gradle-wrapper.properties'
+          if os.path.exists(p):
+              c = open(p).read()
+              c = re.sub(r'distributionUrl=.*', r'distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.3-all.zip', c)
+              open(p, 'w').write(c)
+          # 2. build.gradle
+          p = 'src/android/build.gradle'
+          if os.path.exists(p):
+              c = open(p).read()
+              c = re.sub(r"com\.android\.tools\.build:gradle:[^\'\"]*", "com.android.tools.build:gradle:7.4.2", c)
+              c = re.sub(r"ext\.kotlin_version = .*", "ext.kotlin_version = '1.8.22'", c)
+              open(p, 'w').write(c)
+          EOF
+          python3 patch_gradle.py
       - name: Get packages
         script: |
           cd src
